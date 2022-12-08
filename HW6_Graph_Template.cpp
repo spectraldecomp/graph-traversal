@@ -34,16 +34,19 @@ using namespace std;
 
 class Graph {
 private:
+int adjacencyMatrix[5][5] = {{0}};
     // you should use a private member to store a graph 
     // you can use either a matrix or list to store it. 
+bool visitedList[5];
 public:
     void BuildGraph(vector<int> link);
-    vector<int> DepthFirstTraverse(int i);
-    vector<int> BreadthFirstTraverse(int i);
+    vector<int> DepthFirstTraverse(int input);
+    vector<int> BreadthFirstTraverse(int input);
+    bool isVisited(int input);
+
 };
 
 void Graph::BuildGraph(vector<int> link) {
-
     // This function constructs a graph using the 
     // input link vector. This vector contains all 
     // edges of the graph as follows: 
@@ -51,46 +54,51 @@ void Graph::BuildGraph(vector<int> link) {
     // 2nd edge is connecting node link[2] and link[3]
     // 3rd edge is connecting node link[4] and link[5]
     // ...... 
-
+    for (int i = 0; i < link.size(); i+=2){
+        // matrix[link[0]][link[1]] = 1 and vice versa
+        adjacencyMatrix[link[i]][link[i+1]] = 1;
+        adjacencyMatrix[link[i+1]][link[i]] = 1;  
+    }
 };
 
-vector<int> Graph::DepthFirstTraverse(int i) {
+bool Graph::isVisited(int input){
+    return visitedList[input];
+}
 
-    // This function performs depth-first traverse 
-    // on the graph, starting at node i, and returns 
-    // the sequence of visited nodes stored in a vector.
-    // For example, if DFS visits 3, 1, 0, 2, 4, then 
-    // this function returns a vector {3,1,0,2,4}. 
-    // 
-    // Whether you are using matrix or list implementation, 
-    // break ties based on the order of nodes. 
-    // For example, if node i has multiple univisited 
-    // neighbors 2, 1, 3, we should visit 1 first, then 2 
-    // and finally 3. (If you are using list implementation, 
-    // it may be easier to store neighbor nodes in order 
-    // to facilitate the traverse implementation.) 
-    // 
-
+vector<int> Graph::DepthFirstTraverse(int input) {
+ 
+      visitedList[input] = true;
+      vector<int> sequence;
+      sequence.push_back(input);
+    for (int i = 0; i < 5; i++){
+        if ((adjacencyMatrix[input][i] == 1) && (isVisited(i) == false)){
+            vector<int> subsequence = DepthFirstTraverse(i);
+            sequence.insert(sequence.end(), subsequence.begin(), subsequence.end());
+        }
+    }
+    return sequence;
 };
 
 vector<int> Graph::BreadthFirstTraverse(int i) {
+vector<int> sequence;
+queue<int> next;
 
-    // This function performs breadth-first traverse 
-    // on the graph, starting at node i, and returns 
-    // the sequence of visited nodes stored in a vector.
-    // For example, if BFT visits 4, 2, 1, 0, 3, then 
-    // this function returns a vector {4,2,1,0,3}. 
-    // 
-    // Whether you are using matrix or list implementation, 
-    // break ties based on the order of nodes. 
-    // For example, if node i has multiple univisited 
-    // neighbors 2, 1, 3, we should visit 1 first, then 2 
-    // and finally 3. (If you are using list implementation, 
-    // it may be easier to store neighbor nodes in order 
-    // to facilitate the traverse implementation.) 
-    // 
+  visitedList[i] = true;
+  next.push(i);
 
+  while (next.size() != 0) {
+    int currNode = next.front();
+    next.pop();
+    sequence.push_back(currNode);
 
+    for (int i = 0; i < 5; i++){
+        if ((adjacencyMatrix[currNode][i] == 1) && (isVisited(i) == false)){
+            next.push(i);
+            visitedList[i] = true;
+        }
+     }
+  }
+  return sequence;
 };
 
 
@@ -122,7 +130,7 @@ int main()
             cout << output.at(i) << endl;
         }
         break;
-    }
 
+    }
     return 0;
 }
